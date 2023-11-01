@@ -1,7 +1,7 @@
 const int clockInPin = 2;
 const int ledPin = 13;
 
-const int rclkPin = 5;   // 74HC595 - Shift register clock
+const int rclkPin = 5;   // 74HC595 - Storage register clock
 const int srclkPin = 6;  // 74HC595 - Shift register clock
 const int serPin = 7;    // 74HC595 - Serial data
 
