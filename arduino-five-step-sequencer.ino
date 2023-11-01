@@ -7,6 +7,13 @@ const int serPin = 7;    // 74HC595 - Serial data
 
 int currentStep = 0;
 int stepLength = 4;
+uint8_t ledPatterns[] = {
+  B00000001,
+  B00000010,
+  B00000100,
+  B00001000,
+  B00010000
+};
 
 bool gateState = LOW;
 bool lastGateState = LOW;
@@ -23,38 +30,33 @@ void setup() {
 }
 
 void loop() {
-  byte readClock = gateRead(clockInPin);
-
-  Serial.println(1 << currentStep, BIN);
-  digitalWrite(rclkPin, LOW);
-  shiftOut(serPin, srclkPin, LSBFIRST, 1 >> currentStep);
-  digitalWrite(rclkPin, HIGH);
-  currentStep++;
-  if (currentStep > stepLength) {
-    currentStep = 0;
-  }
-
-  delay(100);
+  int readClock = gateRead(clockInPin);
 
   if (readClock != gateState) {
     gateState = readClock;
     if (gateState) {  // GATE is HIGH
       digitalWrite(ledPin, HIGH);
+
       digitalWrite(rclkPin, LOW);
-      shiftOut(serPin, srclkPin, MSBFIRST, 1 >> currentStep);
+      shiftOut(serPin, srclkPin, MSBFIRST, ledPatterns[currentStep]);
       digitalWrite(rclkPin, HIGH);
+      
       currentStep++;
       if (currentStep > stepLength) {
         currentStep = 0;
       }
     } else {  // GATE is LOW
       digitalWrite(ledPin, LOW);
+      
+      digitalWrite(rclkPin, LOW);
+      shiftOut(serPin, srclkPin, MSBFIRST, B00000000);
+      digitalWrite(rclkPin, HIGH);
     }
   }
   lastGateState = readClock;
 }
 
-byte gateRead(byte pin) {
+int gateRead(byte pin) {
   if (!pin) return;
   return !digitalRead(pin);
 }
